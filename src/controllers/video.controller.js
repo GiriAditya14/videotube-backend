@@ -50,14 +50,15 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
   if (!title) throw new ApiError(400, "Title is required");
 
-  const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
-  const videoLocalPath = req.files?.videoFile[0]?.path;
+  // Use buffer for Vercel compatibility
+  const thumbnailBuffer = req.files?.thumbnail?.[0]?.buffer;
+  const videoBuffer = req.files?.videoFile?.[0]?.buffer;
 
-  if (!thumbnailLocalPath) throw new ApiError(400, "Thumbnail is required");
-  if (!videoLocalPath) throw new ApiError(400, "Video is required");
+  if (!thumbnailBuffer) throw new ApiError(400, "Thumbnail is required");
+  if (!videoBuffer) throw new ApiError(400, "Video is required");
 
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-  const video = await uploadOnCloudinary(videoLocalPath);
+  const thumbnail = await uploadOnCloudinary(thumbnailBuffer);
+  const video = await uploadOnCloudinary(videoBuffer);
 
   if (!thumbnail || !video) throw new ApiError(500, "Failed to upload video");
 
@@ -201,11 +202,11 @@ const updateVideo = asyncHandler(async (req, res) => {
   if (!video) throw new ApiError(404, "Video not found");
 
     
-  const thumbnailLocalPath = req.file?.path;
-  if(thumbnailLocalPath)
+  const thumbnailBuffer = req.file?.buffer;
+  if(thumbnailBuffer)
   { 
       const oldThumbnail = video.thumbnail;
-      const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+      const thumbnail = await uploadOnCloudinary(thumbnailBuffer);
       if(!thumbnail)
           throw new ApiError(500, "Failed to upload thumbnail");
 
