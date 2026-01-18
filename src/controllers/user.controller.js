@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -53,23 +52,24 @@ const registerUser = asyncHandler(async (req, res) => {
 
   console.log(req.files);
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
-  let coverImageLocalPath;
+  // Use buffer for Vercel compatibility
+  const avatarBuffer = req.files?.avatar?.[0]?.buffer;
+  let coverImageBuffer;
 
   if (
     req.files &&
     Array.isArray(req.files.coverImage) &&
     req.files.coverImage.length > 0
   ) {
-    coverImageLocalPath = req.files.coverImage[0]?.path;
+    coverImageBuffer = req.files.coverImage[0]?.buffer;
   }
 
-  if (!avatarLocalPath) {
+  if (!avatarBuffer) {
     throw new ApiError(400, "Avatar is required");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  const avatar = await uploadOnCloudinary(avatarBuffer);
+  const coverImage = await uploadOnCloudinary(coverImageBuffer);
 
   if (!avatar) {
     throw new ApiError(400, "Avatar is required");
@@ -282,11 +282,11 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.file?.path;
+  const avatarBuffer = req.file?.buffer;
 
-  if (!avatarLocalPath) throw new ApiError(400, "Avatar is missing");
+  if (!avatarBuffer) throw new ApiError(400, "Avatar is missing");
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarBuffer);
 
   if (!avatar.url)
     throw new ApiError(500, "Error on uploading avatar to cloudinary");
@@ -312,11 +312,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-  const coverImageLocalPath = req.file?.path;
+  const coverImageBuffer = req.file?.buffer;
 
-  if (!coverImageLocalPath) throw new ApiError(400, "Cover image is missing");
+  if (!coverImageBuffer) throw new ApiError(400, "Cover image is missing");
 
-  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  const coverImage = await uploadOnCloudinary(coverImageBuffer);
 
   if (!coverImage.url)
     throw new ApiError(500, "Error on uploading cover image to cloudinary");
