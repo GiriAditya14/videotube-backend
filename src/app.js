@@ -6,8 +6,7 @@ const app = express()
 
 // configurations
 app.use(cors({
-    origin: process.env.CORS_ORIGIN ,
-    // origin: ["http://localhost:5173", ""],
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) : '*',
     credentials: true,
 }))
 
