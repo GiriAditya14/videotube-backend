@@ -56,10 +56,19 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!thumbnailLocalPath) throw new ApiError(400, "Thumbnail is required");
   if (!videoLocalPath) throw new ApiError(400, "Video is required");
 
+  // Upload thumbnail first (smaller file)
   const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-  const video = await uploadOnCloudinary(videoLocalPath);
+  if (!thumbnail) {
+    throw new ApiError(500, "Failed to upload thumbnail. Please check your internet connection and try again.");
+  }
 
-  if (!thumbnail || !video) throw new ApiError(500, "Failed to upload video");
+  // Upload video
+  const video = await uploadOnCloudinary(videoLocalPath);
+  if (!video) {
+    // If video upload fails, delete the already uploaded thumbnail
+    await deleteImageFromCloudinary(thumbnail.url);
+    throw new ApiError(500, "Failed to upload video. Please check your internet connection and try again. For mobile users, ensure stable network connection.");
+  }
 
   const newVideo = await Video.create({
     title: title.trim(),
