@@ -603,12 +603,6 @@ This is a portfolio project. For suggestions or improvements, please open an iss
 
 ---
 
-## 📝 License
-
-ISC
-
----
-
 ## 👨‍💻 Author
 
 **Aditya Giri**
